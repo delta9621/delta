@@ -1,0 +1,50 @@
+create database alivio;
+use alivio;
+
+create table usuarios(
+id int auto_increment primary key,
+nombre varchar(100) not null,
+correo varchar(100)not null unique,
+password varchar(100) not null,
+rol enum('administrador', 'usuario', 'Contador') not null,
+fecha_registro timestamp default current_timestamp
+);
+
+
+create table solicitudes(
+id int auto_increment primary key,
+usuario_nombre varchar(100) not null,
+fecha date not null,
+concepto varchar(250) not null,
+monto decimal (10, 2) not null,
+proveedor varchar(100) not null,
+metodo_pago varchar(50) not null,
+prioridad varchar(20) not null,
+observaciones text,
+fecha_registro timestamp default current_timestamp,
+estado ENUM('En proceso', 'Aprobada', 'Rechazada') DEFAULT 'En proceso');
+
+
+
+CREATE TABLE  pagos (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    solicitud_id INT NOT NULL,
+    nombre_contador VARCHAR(100) NOT NULL,
+    nombre_solicitante VARCHAR(100) NOT NULL,
+    nombre_compra VARCHAR(250) NOT NULL,
+    fecha DATE NOT NULL,
+    precio DECIMAL(10,2) NOT NULL,
+    comprobante_envio VARCHAR(255) DEFAULT NULL,
+    comprobante_compra VARCHAR(255) DEFAULT NULL,
+    estatus VARCHAR(20) DEFAULT 'Incompleto'
+);
+
+
+
+
+
+
+
+
+
+

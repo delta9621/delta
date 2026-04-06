@@ -1,0 +1,85 @@
+/* * @Estadia numero: 5
+ * @Salvador Humberto Cruz Villafuerte - delta9621 y Citlali Solano Diaz
+ * @date 2025-04-30
+ * @version 1.0 */
+ 
+/* Estilos generales para centrar el contenido */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f0f4f8; /* Un gris azulado muy claro para que resalte el blanco */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+/* Contenedor del formulario */
+form {
+    background-color: #ffffff; /* Blanco */
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    width: 350px;
+    border-top: 5px solid #6a1b9a; /* Detalle superior en Morado */
+}
+
+/* Título */
+h2 {
+    color: #1a237e; /* Azul oscuro */
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+/* Etiquetas (Labels) */
+label {
+    color: #4a148c; /* Morado oscuro */
+    font-weight: 600;
+    font-size: 14px;
+}
+
+/* Inputs y Select */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+select {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    border: 1px solid #d1d9e6;
+    border-radius: 6px;
+    box-sizing: border-box; /* Asegura que el padding no desborde el ancho */
+    transition: border-color 0.3s ease;
+}
+
+/* Efecto al hacer clic en los campos */
+input:focus, select:focus {
+    outline: none;
+    border-color: #2196f3; /* Azul vibrante */
+    box-shadow: 0 0 5px rgba(33, 150, 243, 0.3);
+}
+
+/* Botón de registro */
+button {
+    width: 100%;
+    background-color: #2196f3; /* Azul */
+    color: white;
+    padding: 12px;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 10px;
+}
+
+/* Efecto hover en el botón */
+button:hover {
+    background-color: #6a1b9a; /* Cambia a Morado al pasar el mouse */
+}
+
+/* Estilo para el placeholder */
+::placeholder {
+    color: #abb2b9;
+}

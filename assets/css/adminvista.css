@@ -1,0 +1,293 @@
+/* * @Estadia numero: 5
+ * @Salvador Humberto Cruz Villafuerte - delta9621 y Citlali Solano Diaz
+ * @date 2025-04-30
+ * @version 1.0 */
+ 
+/* RESET GENERAL */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    display: flex;
+    min-height: 100vh;
+    background: #f2f4f7;
+}
+
+/* SIDEBAR */
+.sidebar {
+    width: 240px;
+    background: linear-gradient(180deg, #3db3c7, #1c5aa6);
+    color: white;
+    padding: 20px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    transition: all 0.3s ease;
+    z-index: 1000;
+}
+
+.close-menu {
+    display: none;
+    text-align: right;
+    font-size: 2rem;
+    cursor: pointer;
+}
+
+.sidebar h2 {
+    margin-bottom: 30px;
+    font-size: 1.2rem;
+    text-align: center;
+    border-bottom: 1px solid rgba(255,255,255,0.2);
+    padding-bottom: 15px;
+}
+
+.sidebar nav a {
+    display: block;
+    padding: 12px;
+    margin-bottom: 8px;
+    text-decoration: none;
+    color: white;
+    border-radius: 6px;
+    transition: 0.3s;
+}
+
+.sidebar nav a:hover,
+.sidebar nav a.active {
+    background: rgba(255, 255, 255, 0.2);
+    border-left: 4px solid white;
+}
+
+/* CONTENIDO PRINCIPAL */
+.main {
+    flex: 1;
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    overflow-x: hidden;
+}
+
+/* TOPBAR */
+.topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: white;
+    padding: 15px 25px;
+    border-radius: 10px;
+    box-shadow: 0px 2px 8px rgba(0,0,0,0.05);
+}
+
+.menu-toggle {
+    display: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #1c5aa6;
+}
+
+.logout-btn {
+    text-decoration: none;
+    color: #e74c3c;
+    font-weight: bold;
+}
+
+/* TARJETA PERFIL */
+.card {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 2px 8px rgba(0,0,0,0.1);
+}
+
+.profile {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.profile img {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: 2px solid #3db3c7;
+}
+
+/* TABLA Y BUSCADOR */
+.search {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+}
+
+#searchInput {
+    flex: 1;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+}
+
+.btn-new {
+    background: #2ecc71;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+/* ESTILO DE BOTONES */
+.btn {
+    padding: 8px 14px;
+    text-decoration: none;
+    border-radius: 6px;
+    font-size: 13px;
+    color: white;
+    font-weight: 500;
+    text-align: center;
+    transition: 0.3s;
+    display: inline-block;
+}
+
+.btn-edit { background: #3db3c7; }
+.btn-delete { background: #e74c3c; }
+.btn:hover { opacity: 0.8; transform: translateY(-1px); }
+
+.actions-cell {
+    display: flex;
+    gap: 8px;
+}
+
+.table-container {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 2px 8px rgba(0,0,0,0.1);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+table th, table td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+table th {
+    color: #1c5aa6;
+    background: #f9f9f9;
+}
+
+/* --- NUEVOS ESTILOS PARA LA CONTRASEÑA --- */
+.pass-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.pass-input {
+    border: none;
+    background: transparent;
+    width: 100%;
+    max-width: 120px;
+    outline: none;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 14px;
+    color: #555;
+}
+
+.btn-eye {
+    cursor: pointer;
+    border: none;
+    background: none;
+    padding: 0;
+    font-size: 16px;
+    transition: transform 0.2s ease;
+}
+
+.btn-eye:hover {
+    transform: scale(1.2);
+}
+
+/* RESPONSIVO (MÓVIL) */
+@media (max-width: 768px) {
+    .sidebar {
+        position: fixed;
+        left: -240px;
+        top: 0;
+    }
+
+    .sidebar.active {
+        left: 0;
+    }
+
+    .close-menu { display: block; }
+    .menu-toggle { display: block; }
+    .search { flex-direction: column; }
+    .topbar-title { display: none; }
+}
+
+/* RESPONSIVIDAD EXTREMA (TABLA A TARJETAS) */
+@media (max-width: 600px) {
+    table thead { display: none; }
+
+    table tr {
+        display: block;
+        border: 1px solid #ddd;
+        margin-bottom: 15px;
+        border-radius: 8px;
+        padding: 10px;
+    }
+
+    table td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid #f0f0f0;
+        padding: 10px 5px;
+        text-align: right;
+    }
+
+    /* Ajuste para el contenedor de password en móvil */
+    .pass-container {
+        justify-content: flex-end;
+        width: 60%; /* Ajusta el espacio para que no choque con el label */
+    }
+
+    .pass-input {
+        text-align: right;
+        max-width: 100px;
+    }
+
+    table td:last-child { border-bottom: none; }
+
+    table td::before {
+        content: attr(data-label);
+        font-weight: bold;
+        color: #1c5aa6;
+        text-transform: uppercase;
+        font-size: 11px;
+        text-align: left;
+        flex-shrink: 0;
+    }
+
+    .actions-cell {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .btn {
+        width: 100%;
+        margin: 4px 0;
+        padding: 12px;
+        font-size: 15px;
+    }
+}

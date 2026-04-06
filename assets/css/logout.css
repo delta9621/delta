@@ -1,0 +1,135 @@
+/* * @Estadia numero: 5
+ * @Salvador Humberto Cruz Villafuerte - delta9621 y Citlali Solano Diaz
+ * @date 2025-04-30
+ * @version 1.0 */
+ 
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    margin: 0;
+}
+
+.container {
+    display: flex;
+    height: 100vh;
+    width: 100%;
+}
+
+/* IZQUIERDA */
+.left {
+    width: 50%;
+    background: linear-gradient(to bottom, #43c6db, #1e3c72);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.logo {
+    width: 250px;
+    height: 250px;
+    border-radius: 50%;
+    background: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+}
+
+.logo img {
+    width: 180px;
+    height: auto;
+}
+
+/* DERECHA */
+.right {
+    width: 50%;
+    background: #e6e6e6;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+form {
+    width: 100%;
+    max-width: 320px; /* Evita que el form se estire demasiado */
+}
+
+h2 {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+label {
+    display: block;
+    margin-top: 15px;
+    font-weight: bold;
+}
+
+input {
+    width: 100%;
+    padding: 12px;
+    margin-top: 5px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    outline: none;
+}
+
+input:focus {
+    border-color: #1e3c72;
+}
+
+button {
+    margin-top: 25px;
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 5px;
+    background: #7a8fa6;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+button:hover {
+    background: #5f748c;
+}
+
+/* --- ESTILOS RESPONSIVOS --- */
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column; /* Apila los elementos verticalmente */
+    }
+
+    .left {
+        width: 100%;
+        height: 35vh; /* Altura fija para el logo en móviles */
+    }
+
+    .right {
+        width: 100%;
+        height: 65vh;
+        padding: 40px 20px;
+    }
+
+    .logo {
+        width: 180px; /* Logo un poco más pequeño en móviles */
+        height: 180px;
+    }
+
+    .logo img {
+        width: 120px;
+    }
+
+    form {
+        max-width: 100%; /* El form ocupa el ancho del contenedor en móvil */
+    }
+}

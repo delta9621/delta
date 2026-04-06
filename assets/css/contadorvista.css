@@ -1,0 +1,286 @@
+/* * @Estadia numero: 5
+ * @Salvador Humberto Cruz Villafuerte - delta9621 y Citlali Solano Diaz
+ * @date 2025-04-30
+ * @version 1.0 */
+
+/* --- RESET GENERAL --- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+body {
+    display: flex;
+    min-height: 100vh;
+    background: #f2f4f7;
+    color: #333;
+    line-height: 1.6;
+}
+
+.container {
+    display: flex;
+    width: 100%;
+}
+
+/* --- SIDEBAR (Estilo Administrador) --- */
+.sidebar {
+    width: 240px;
+    background: linear-gradient(180deg, #3db3c7, #1c5aa6);
+    color: white;
+    padding: 20px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    transition: all 0.3s ease;
+    z-index: 1000;
+}
+
+.sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(255,255,255,0.2);
+}
+
+.sidebar h2 {
+    font-size: 1.2rem;
+    text-align: center;
+    text-transform: uppercase;
+    width: 100%;
+}
+
+.close-menu {
+    display: none;
+    font-size: 2rem;
+    cursor: pointer;
+}
+
+.sidebar nav a {
+    display: block;
+    padding: 12px;
+    margin-bottom: 8px;
+    text-decoration: none;
+    color: white;
+    border-radius: 6px;
+    transition: 0.3s;
+    font-size: 14px;
+}
+
+.sidebar nav a:hover,
+.sidebar nav a.active {
+    background: rgba(255, 255, 255, 0.2);
+    border-left: 4px solid white;
+}
+
+/* --- CONTENIDO PRINCIPAL --- */
+.main {
+    flex: 1;
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    overflow-x: hidden;
+}
+
+/* --- TOPBAR --- */
+.topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: white;
+    padding: 15px 25px;
+    border-radius: 10px;
+    box-shadow: 0px 2px 8px rgba(0,0,0,0.05);
+}
+
+.topbar-left { display: flex; align-items: center; gap: 15px; }
+
+.topbar-title { 
+    font-size: 1.1rem; 
+    font-weight: 600; 
+    color: #1c5aa6; 
+}
+
+.menu-toggle {
+    display: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #1c5aa6;
+}
+
+.logout-btn {
+    text-decoration: none;
+    color: #e74c3c;
+    font-weight: bold;
+}
+
+/* --- TARJETAS (Perfil y Contenedores) --- */
+.card {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 2px 8px rgba(0,0,0,0.1);
+}
+
+.profile {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.profile img {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: 2px solid #3db3c7;
+    object-fit: cover;
+}
+
+.nombre-usuario { color: #1c5aa6; font-weight: bold; }
+
+/* --- ESTADÍSTICAS DINÁMICAS (Contador) --- */
+.stats-container {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.stat-card {
+    flex: 1;
+    min-width: 180px;
+    text-decoration: none;
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    transition: transform 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.stat-card:hover { 
+    transform: translateY(-5px); 
+    box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+}
+
+.stat-card.active-filter { border-color: #3db3c7; }
+
+.stat-card h3 { 
+    font-size: 11px; 
+    color: #888; 
+    margin-bottom: 10px; 
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.number { font-size: 30px; font-weight: 800; }
+
+.color-pendiente { color: #f1c40f; }
+.color-rechazada { color: #e74c3c; }
+.color-aprobada  { color: #2ecc71; }
+
+/* --- TABLAS --- */
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+table th, table td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+    font-size: 14px;
+}
+
+table th {
+    color: #1c5aa6;
+    background: #f9f9f9;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 13px;
+}
+
+table tr:hover { background-color: #fcfdfe; }
+
+/* --- BOTONES DE ACCIÓN --- */
+.btn-accion {
+    padding: 8px 14px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 11px;
+    transition: 0.3s;
+    color: white;
+    text-transform: uppercase;
+    display: inline-block;
+    margin: 2px;
+}
+
+.btn-aprobar { background-color: #2ecc71; }
+.btn-rechazar { background-color: #e74c3c; }
+
+.btn-accion:hover {
+    opacity: 0.8;
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* --- RESPONSIVIDAD --- */
+@media (max-width: 768px) {
+    .sidebar {
+        position: fixed;
+        left: -240px;
+        top: 0;
+        width: 240px;
+    }
+
+    .sidebar.active { left: 0; }
+    .close-menu { display: block; }
+    .menu-toggle { display: block; }
+    
+    .stats-container { flex-direction: column; }
+    .main { padding: 15px; }
+
+    /* Tabla a Tarjetas en Móvil */
+    table thead { display: none; }
+    table tr {
+        display: block;
+        border: 1px solid #ddd;
+        margin-bottom: 15px;
+        border-radius: 8px;
+        padding: 10px;
+        background: white;
+    }
+
+    table td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid #f0f0f0;
+        padding: 10px 5px;
+        text-align: right;
+    }
+
+    table td:last-child { border-bottom: none; }
+
+    table td::before {
+        content: attr(data-label);
+        font-weight: bold;
+        color: #1c5aa6;
+        text-transform: uppercase;
+        font-size: 11px;
+        text-align: left;
+    }
+
+    .btn-accion {
+        width: 100%;
+        margin: 5px 0;
+        padding: 12px;
+    }
+}
