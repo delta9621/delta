@@ -10,7 +10,7 @@ session_start();
 
 // SEGURIDAD: Solo usuarios con rol 'administrador'
 if(!isset($_SESSION['rol']) || strcasecmp(trim($_SESSION['rol']), 'administrador') !== 0){
-    header("Location: ../index.php");
+    header("Location: /proyecto/index.php");
     exit();
 }
 
@@ -70,7 +70,7 @@ $resultado_pagos = $stmt->get_result();
                 <span class="topbar-title">Mis Comprobantes Generados</span>
             </div>
             <div class="topbar-right">
-                <a href="../php/logout.php" class="logout-link">Cerrar Sesión</a>
+                <a href="/proyecto/index.php" class="logout-link">Cerrar Sesión</a>
             </div>
         </header>
 

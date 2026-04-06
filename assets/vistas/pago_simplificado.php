@@ -10,7 +10,7 @@ session_start();
 
 // Seguridad: Solo usuarios con rol 'usuario'
 if(!isset($_SESSION['rol']) || strcasecmp(trim($_SESSION['rol']), 'usuario') !== 0){
-    header("Location: ../index.php");
+    header("Location: /proyecto/index.php");
     exit();
 }
 
@@ -59,7 +59,7 @@ $resultado_pagos = $stmt->get_result();
             <a href="solicitudes.php">SOLICITUDES</a>
             <a href="../formularios/solicitud.php">NUEVA SOLICITUD</a>
             <a href="pago_simplificado.php" class="active">COMPROBANTES</a>
-            <a href="/proyecto/logout.php" class="logout-mobile">CERRAR SESIÓN</a>
+            <a href="/proyecto/index.php" class="logout-mobile">CERRAR SESIÓN</a>
         </nav>
     </aside>
 

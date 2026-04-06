@@ -42,7 +42,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
                 case 'administrador': $ruta = "../vistas/admin.php"; break;
                 case 'Contador':      $ruta = "../vistas/contador.php"; break;
                 case 'usuario':       $ruta = "../vistas/solicitudes.php"; break;
-                default:              $ruta = "/proyecto/logout.php?error=rol_no_valido"; break;
+                default:              $ruta = "/proyecto/index.php?error=rol_no_valido"; break;
             }
 
             // ÉXITO: Usamos JS para redirigir, NO header de PHP
@@ -72,7 +72,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
                 text: 'Correo o contraseña incorrectos',
                 confirmButtonColor: '#1e3c72'
             }).then(() => {
-                window.location.href = '../../logout.php'; 
+                window.location.href = '/proyecto/index.php'; 
             });
         }, 100);
     </script>";

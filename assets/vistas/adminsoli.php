@@ -10,7 +10,7 @@ session_start();
 
 //  Validación de sesión
 if(!isset($_SESSION['nombre'])){
-    header("Location: ./assets/index.php");
+    header("Location: /proyecto/index.php");
     exit();
 }
 
@@ -79,7 +79,7 @@ if($estado_filtro !== ''){
                 <span class="topbar-title">Gestión de Solicitudes Enviadas</span>
             </div>
             <div class="topbar-right">
-             <a href="/proyecto/logout.php" class="logout-link">Cerrar Sesión</a>
+             <a href="/proyecto/index.php" class="logout-link">Cerrar Sesión</a>
             </div>
         </header>
 

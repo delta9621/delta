@@ -11,7 +11,7 @@ session_start();
 
 //  VALIDACIÓN DE SESIÓN Y ROL
 if(!isset($_SESSION['nombre']) || strtolower(trim($_SESSION['rol'])) != 'contador'){
-    header("Location: ../index.php?error=rol_no_valido");
+    header("Location: /proyecto/index.php?error=rol_no_valido");
     exit();
 }
 
@@ -81,7 +81,7 @@ $solicitudes_detalle = $stmt_det->get_result();
                 <div class="menu-toggle" onclick="toggleMenu()">☰</div>
                 <div class="topbar-title">Revisión de Gastos</div>
             </div>
-            <a href="/proyecto/logout.php" class="logout-btn">Cerrar Sesión</a>
+            <a href="/proyecto/index.php" class="logout-btn">Cerrar Sesión</a>
         </div>
 
         <div class="card">

@@ -9,7 +9,7 @@ session_start();
 
 //  Validación de sesión
 if (!isset($_SESSION['nombre'])) {
-    header("Location: ../index.php"); 
+    header("Location: /proyecto/index.php"); 
     exit();
 }
 
@@ -53,7 +53,7 @@ $resultado = $conexion->query($sql);
                 <div class="menu-toggle" onclick="toggleMenu()">☰</div>
                 <div class="topbar-title">Gestión de Usuarios</div>
             </div>
-            <a href="/proyecto/logout.php" class="logout-btn">Cerrar Sesión</a>
+            <a href="/proyecto/index.php" class="logout-btn">Cerrar Sesión</a>
         </div>
 
         <div class="card">

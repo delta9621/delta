@@ -10,11 +10,11 @@ session_start();
 
 //validacion de usuario al inicar sesion
 if(!isset($_SESSION['nombre'])){
-    header("Location: ./assets/index.php");
+    header("Location: /proyecto/index.php");
     exit();
 }
 // importar conexion al servidor
-include("./proyecto/");
+include("../php/conexion.php");
 ?>
 
 <!DOCTYPE html>
