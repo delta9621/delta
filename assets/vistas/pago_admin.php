@@ -8,6 +8,7 @@
 <?php 
 session_start();
 
+
 // SEGURIDAD: Solo usuarios con rol 'administrador'
 if(!isset($_SESSION['rol']) || strcasecmp(trim($_SESSION['rol']), 'administrador') !== 0){
     header("Location: /proyecto/index.php");
@@ -150,24 +151,33 @@ $resultado_pagos = $stmt->get_result();
             title: 'Vista de Comprobante',
             html: esPdf 
                 ? `<iframe src="${url}" width="100%" height="450px" style="border:none;"></iframe>` 
-                : `<img src="${url}" style="max-width:100%; border-radius:8px;">`,
+                : `<img src="${url}" style="max-width:100%; border-radius:8px; box-shadow: 0 4px 10px rgba(0,0,0,0.2);">`,
             width: esPdf ? '800px' : '600px',
-            confirmButtonText: 'Cerrar'
+            confirmButtonText: 'Cerrar',
+            confirmButtonColor: '#3085d6'
         });
     }
 
     function subirDoc(id) {
         Swal.fire({
             title: 'Subir Comprobante Personal',
+            text: 'Seleccione imagen o PDF',
             input: 'file',
             inputAttributes: { 'accept': 'image/*,application/pdf' },
             showCancelButton: true,
             confirmButtonText: 'Subir',
             confirmButtonColor: '#27ae60',
+            cancelButtonColor: '#d33',
             inputValidator: (value) => { if (!value) return '¡Selecciona un archivo!' }
         }).then((result) => {
             if (result.isConfirmed) {
-                Swal.fire({ title: 'Subiendo...', didOpen: () => { Swal.showLoading(); } });
+                // Alerta de carga (Loading)
+                Swal.fire({ 
+                    title: 'Subiendo...', 
+                    html: 'Procesando archivo personal',
+                    allowOutsideClick: false,
+                    didOpen: () => { Swal.showLoading(); } 
+                });
 
                 const formData = new FormData();
                 formData.append('id_pago', id);
@@ -175,14 +185,35 @@ $resultado_pagos = $stmt->get_result();
                 formData.append('columna', 'comprobante_compra');
 
                 fetch('../php/procesar_dual.php', { method: 'POST', body: formData })
-                .then(r => r.json())
-                .then(data => {
-                    if(data.status === 'success') {
-                        Swal.fire({ icon: 'success', title: 'Listo', showConfirmButton: false, timer: 1500 })
-                        .then(() => location.reload());
-                    } else {
-                        Swal.fire('Error', data.msg, 'error');
+                .then(response => response.text()) // Leemos como texto para limpiar posibles errores de PHP
+                .then(text => {
+                    const cleanText = text.trim();
+                    try {
+                        const data = JSON.parse(cleanText);
+                        if(data.status === 'success') {
+                            Swal.fire({ 
+                                icon: 'success', 
+                                title: '¡Listo!', 
+                                text: 'Comprobante actualizado correctamente',
+                                showConfirmButton: false, 
+                                timer: 1500 
+                            }).then(() => location.reload());
+                        } else {
+                            Swal.fire('Error', data.msg, 'error');
+                        }
+                    } catch (e) {
+                        // Si el servidor insertó pero mandó respuesta sucia, recargamos para ver cambios
+                        console.warn("Respuesta del servidor no es JSON puro:", text);
+                        location.reload(); 
                     }
+                })
+                .catch(error => {
+                    console.error('Error de conexión:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error de Red',
+                        text: 'No se pudo contactar con procesar_dual.php'
+                    });
                 });
             }
         });

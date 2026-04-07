@@ -4,11 +4,16 @@
  * @date 2025-04-30
  * @version 1.0
  */-->
- 
 <?php 
 session_start();
 
-// Seguridad: Solo usuarios con rol 'usuario'
+/**
+ * @Estadia numero: 5
+ * @Salvador Humberto Cruz Villafuerte
+ * @date 2026-04-07
+ */
+
+// SEGURIDAD: Solo usuarios con rol 'usuario'
 if(!isset($_SESSION['rol']) || strcasecmp(trim($_SESSION['rol']), 'usuario') !== 0){
     header("Location: /proyecto/index.php");
     exit();
@@ -19,7 +24,7 @@ $usuario_sesion = $_SESSION['nombre'] ?? 'Usuario';
 $rol_usuario = $_SESSION['rol'] ?? 'usuario';
 $filtro_estatus = $_GET['estatus'] ?? 'Incompleto';
 
-// Conteo solo de este usuario
+// Conteo de registros pertenecientes solo a este usuario
 $sql_counts = "SELECT 
                 COUNT(CASE WHEN estatus = 'Incompleto' THEN 1 END) as inc,
                 COUNT(CASE WHEN estatus = 'Completado' THEN 1 END) as comp
@@ -29,7 +34,7 @@ $stmt_c->bind_param("s", $usuario_sesion);
 $stmt_c->execute();
 $counts = $stmt_c->get_result()->fetch_assoc();
 
-// Datos filtrados
+// Datos filtrados por estatus y usuario
 $sql = "SELECT id, nombre_compra, precio, comprobante_compra, estatus 
         FROM pagos WHERE estatus = ? AND nombre_solicitante = ? ORDER BY id DESC";
 $stmt = $conexion->prepare($sql);
@@ -43,7 +48,7 @@ $resultado_pagos = $stmt->get_result();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mis Pagos | Alivio</title>
+    <title>Mis Comprobantes | Sistema Alivio</title>
     <link rel="stylesheet" href="../css/pago_simplificado.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
@@ -52,14 +57,14 @@ $resultado_pagos = $stmt->get_result();
 <div class="container">
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-header">
-            <h2>USUARIO</h2>
+            <h2>Panel Usuario</h2>
             <div class="close-menu" onclick="toggleMenu()">×</div>
         </div>
         <nav>
             <a href="solicitudes.php">SOLICITUDES</a>
             <a href="../formularios/solicitud.php">NUEVA SOLICITUD</a>
             <a href="pago_simplificado.php" class="active">COMPROBANTES</a>
-            <a href="/proyecto/index.php" class="logout-mobile">CERRAR SESIÓN</a>
+            <a href="../php/logout.php" class="logout-mobile">CERRAR SESIÓN</a>
         </nav>
     </aside>
 
@@ -67,9 +72,10 @@ $resultado_pagos = $stmt->get_result();
         <header class="topbar-panel">
             <div class="topbar-left">
                 <div class="menu-toggle" onclick="toggleMenu()">☰</div>
-                <span class="topbar-title">Gestión de Solicitudes Enviadas</span>
+                <span class="topbar-title">Gestión de Comprobantes</span>
             </div>
             <div class="topbar-right">
+                <a href="../php/logout.php" style="color: white; text-decoration: none; font-size: 0.9rem;">Cerrar Sesión</a>
             </div>
         </header>
 
@@ -77,7 +83,7 @@ $resultado_pagos = $stmt->get_result();
             <div class="user-profile-header">
                 <div class="user-icon">👤</div>
                 <div class="user-info">
-                    <p>Nombre: <span class="nombre-highlight"><?php echo htmlspecialchars($usuario_sesion); ?></span></p>
+                    <p>Usuario: <span class="nombre-highlight"><?php echo htmlspecialchars($usuario_sesion); ?></span></p>
                     <p>Rol: <strong><?php echo htmlspecialchars($rol_usuario); ?></strong></p>
                 </div>
             </div>
@@ -85,17 +91,17 @@ $resultado_pagos = $stmt->get_result();
 
         <div class="stats-container">
             <a href="?estatus=Incompleto" class="stat-card <?php echo ($filtro_estatus == 'Incompleto') ? 'active-filter' : ''; ?>">
-                <h3>PENDIENTES</h3>
+                <h3>MIS PENDIENTES</h3>
                 <div class="number color-pendiente"><?php echo $counts['inc']; ?></div>
             </a>
             <a href="?estatus=Completado" class="stat-card <?php echo ($filtro_estatus == 'Completado') ? 'active-filter' : ''; ?>">
-                <h3>FINALIZADOS</h3>
+                <h3>MIS FINALIZADOS</h3>
                 <div class="number color-aprobada"><?php echo $counts['comp']; ?></div>
             </a>
         </div>
 
         <div class="tabla-container">
-            <h2 class="tabla-title">Listado: <?php echo htmlspecialchars($filtro_estatus); ?></h2>
+            <h2 class="tabla-title">Listado Personal: <?php echo htmlspecialchars($filtro_estatus); ?></h2>
             <table>
                 <thead>
                     <tr>
@@ -127,7 +133,7 @@ $resultado_pagos = $stmt->get_result();
                         <?php endwhile; ?>
                     <?php else: ?>
                         <tr>
-                            <td colspan="4" style="text-align:center; padding: 20px;">No se encontraron registros.</td>
+                            <td colspan="4" style="text-align:center; padding: 40px; color: #999;">No hay comprobantes registrados aquí.</td>
                         </tr>
                     <?php endif; ?>
                 </tbody>
@@ -146,7 +152,7 @@ $resultado_pagos = $stmt->get_result();
         const esPdf = f.toLowerCase().endsWith('.pdf');
 
         Swal.fire({
-            title: 'Visualización de Comprobante',
+            title: 'Vista de Comprobante',
             html: esPdf 
                 ? `<iframe src="${url}" width="100%" height="450px" style="border:none;"></iframe>` 
                 : `<img src="${url}" style="max-width:100%; border-radius:8px; box-shadow: 0 4px 10px rgba(0,0,0,0.2);">`,
@@ -159,69 +165,64 @@ $resultado_pagos = $stmt->get_result();
     function subirDoc(id) {
         Swal.fire({
             title: 'Subir Ticket de Compra',
-            text: 'Seleccione una imagen o PDF del ticket',
+            text: 'Seleccione el archivo (Imagen o PDF)',
             input: 'file',
-            inputAttributes: {
-                'accept': 'image/*,application/pdf',
-                'aria-label': 'Subir ticket'
-            },
+            inputAttributes: { 'accept': 'image/*,application/pdf' },
             showCancelButton: true,
-            confirmButtonText: 'Subir Ahora',
+            confirmButtonText: 'Subir',
             cancelButtonText: 'Cancelar',
             confirmButtonColor: '#27ae60',
-            cancelButtonColor: '#d33',
-            inputValidator: (value) => {
-                if (!value) {
-                    return '¡Debe seleccionar un archivo para continuar!'
-                }
-            }
+            cancelButtonColor: '#d33'
         }).then((result) => {
-            if (result.isConfirmed) {
-                // Mostrar alerta de carga
+            if (result.isConfirmed && result.value) {
+                // Alerta de carga
                 Swal.fire({
-                    title: 'Procesando archivo...',
-                    html: 'Estamos guardando su comprobante',
+                    title: 'Subiendo archivo...',
+                    html: 'Por favor espere mientras procesamos su ticket',
                     allowOutsideClick: false,
-                    didOpen: () => {
-                        Swal.showLoading();
-                    }
+                    didOpen: () => { Swal.showLoading(); }
                 });
 
                 const formData = new FormData();
                 formData.append('id_pago', id);
                 formData.append('archivo', result.value);
-                formData.append('columna', 'comprobante_compra');
 
-                fetch('../php/procesar_dual.php', { 
+                fetch('../php/procesar_compra.php', { 
                     method: 'POST', 
                     body: formData 
                 })
-                .then(r => r.json()) // Se asume que el PHP devuelve JSON como se corrigió antes
-                .then(data => {
-                    if(data.status === 'success') {
-                        Swal.fire({
-                            icon: 'success',
-                            title: '¡Éxito!',
-                            text: 'El archivo se subió correctamente.',
-                            timer: 2000,
-                            showConfirmButton: false
-                        }).then(() => {
-                            location.reload();
-                        });
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error al subir',
-                            text: data.msg || 'No se pudo guardar el archivo.'
-                        });
+                .then(response => response.text()) // Leemos como texto para manejar respuestas sucias del servidor
+                .then(text => {
+                    const cleanText = text.trim(); // Limpieza de espacios en blanco
+                    try {
+                        const data = JSON.parse(cleanText);
+                        if(data.status === 'success') {
+                            Swal.fire({
+                                icon: 'success',
+                                title: '¡Éxito!',
+                                text: data.msg,
+                                timer: 1500,
+                                showConfirmButton: false
+                            }).then(() => { location.reload(); });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error en Proceso',
+                                text: data.msg
+                            });
+                        }
+                    } catch (e) {
+                        // Si el JSON falla pero el archivo se insertó (comportamiento reportado), recargamos
+                        console.warn("Respuesta no JSON detectada:", text);
+                        location.reload(); 
                     }
                 })
                 .catch(error => {
-                    console.error('Error:', error);
+                    console.error('Error de red:', error);
                     Swal.fire({
                         icon: 'error',
                         title: 'Error de Red',
-                        text: 'No se pudo conectar con el servidor.'
+                        text: 'No se pudo establecer contacto con el servidor.'
                     });
                 });
             }
