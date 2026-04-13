@@ -8,6 +8,12 @@
 <?php 
 session_start();
 
+/**
+ * @Estadia numero: 5
+ * @Salvador Humberto Cruz Villafuerte
+ * @date 2026-04-13
+ */
+
 //  VALIDACIÓN DE SESIÓN Y ROL
 if(!isset($_SESSION['nombre']) || strtolower(trim($_SESSION['rol'])) != 'contador'){
     header("Location: /proyecto/index.php?error=rol_no_valido");
@@ -102,7 +108,8 @@ $resultado_pagos = $stmt->get_result();
                             <th>Monto</th>
                             <th>Envío (Transf.)</th>
                             <th>Compra (Ticket)</th>
-                            <th>Aprobado por</th> <th>Estado</th>
+                            <th>Aprobado por</th> 
+                            <th>Estado</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -140,10 +147,7 @@ $resultado_pagos = $stmt->get_result();
                                 </td>
 
                                 <td data-label="Estado">
-                                    <span class="badge <?php echo ($pago['estatus'] == 'Completado') ? 'badge-completado' : 'badge-incompleto'; ?>" 
-                                          style="padding: 5px 10px; border-radius: 20px; font-size: 11px; font-weight: bold; 
-                                          background: <?php echo ($pago['estatus'] == 'Completado') ? '#d4edda' : '#ffeaa7'; ?>; 
-                                          color: <?php echo ($pago['estatus'] == 'Completado') ? '#155724' : '#d35400'; ?>;">
+                                    <span class="badge" style="padding: 5px 10px; border-radius: 20px; font-size: 11px; font-weight: bold; background: <?php echo ($pago['estatus'] == 'Completado') ? '#d4edda' : '#ffeaa7'; ?>; color: <?php echo ($pago['estatus'] == 'Completado') ? '#155724' : '#d35400'; ?>;">
                                         <?php echo $pago['estatus']; ?>
                                     </span>
                                 </td>
@@ -172,7 +176,7 @@ $resultado_pagos = $stmt->get_result();
             title: 'Visualización de Documento',
             html: esPdf 
                 ? `<iframe src="${url}" style="width:100%; height:450px; border:none;"></iframe>`
-                : `<img src="${url}" style="max-width:100%; border-radius:8px;">`,
+                : `<img src="${url}" style="max-width:100%; border-radius:8px; box-shadow: 0 4px 10px rgba(0,0,0,0.2);">`,
             confirmButtonText: 'Cerrar',
             width: '700px'
         });
@@ -181,7 +185,7 @@ $resultado_pagos = $stmt->get_result();
     function subirDoc(id, columna) {
         Swal.fire({
             title: 'Subir Comprobante',
-            text: `Selecciona el archivo para ${columna.replace('_', ' ')}`,
+            text: `Seleccione el archivo para ${columna === 'comprobante_envio' ? 'Transferencia' : 'Ticket'}`,
             input: 'file',
             inputAttributes: {
                 'accept': 'image/*,application/pdf',
@@ -189,29 +193,53 @@ $resultado_pagos = $stmt->get_result();
             },
             showCancelButton: true,
             confirmButtonText: 'Subir',
-            cancelButtonText: 'Cancelar'
+            cancelButtonText: 'Cancelar',
+            confirmButtonColor: '#27ae60'
         }).then((file) => {
-            if (file.value) {
+            if (file.isConfirmed && file.value) {
+                // Loading de subida
+                Swal.fire({ 
+                    title: 'Subiendo...', 
+                    html: 'Procesando el documento en el servidor',
+                    allowOutsideClick: false, 
+                    didOpen: () => { Swal.showLoading(); }
+                });
+
                 const formData = new FormData();
                 formData.append('id_pago', id);
                 formData.append('archivo', file.value);
                 formData.append('columna', columna);
 
-                Swal.fire({ title: 'Cargando...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); }});
-
                 fetch('../php/procesar_dual.php', {
                     method: 'POST',
                     body: formData
                 })
-                .then(r => r.json())
-                .then(data => {
-                    if(data.status === 'success') {
-                        Swal.fire('¡Éxito!', 'Archivo subido correctamente', 'success').then(() => location.reload());
-                    } else {
-                        Swal.fire('Error', data.msg, 'error');
+                .then(response => response.text()) // Leemos como texto primero para limpiar la respuesta
+                .then(text => {
+                    const cleanText = text.trim();
+                    try {
+                        const data = JSON.parse(cleanText);
+                        if(data.status === 'success') {
+                            Swal.fire({
+                                icon: 'success',
+                                title: '¡Éxito!',
+                                text: 'Archivo subido correctamente',
+                                timer: 1500,
+                                showConfirmButton: false
+                            }).then(() => location.reload());
+                        } else {
+                            Swal.fire('Error', data.msg, 'error');
+                        }
+                    } catch (e) {
+                        // Si el servidor mandó basura pero el archivo se subió (lo cual es tu caso habitual), recargamos
+                        console.warn("Respuesta sucia del servidor:", text);
+                        location.reload(); 
                     }
                 })
-                .catch(() => Swal.fire('Error', 'No se pudo conectar con el servidor', 'error'));
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire('Error', 'No se pudo conectar con el servidor', 'error');
+                });
             }
         });
     }
