@@ -4,14 +4,9 @@
  * @date 2025-04-30
  * @version 1.0
  */-->
-<?php 
-session_start();
 
-/**
- * @Estadia numero: 5
- * @Salvador Humberto Cruz Villafuerte
- * @date 2026-04-07
- */
+ <?php 
+session_start();
 
 // SEGURIDAD: Solo usuarios con rol 'usuario'
 if(!isset($_SESSION['rol']) || strcasecmp(trim($_SESSION['rol']), 'usuario') !== 0){
@@ -64,7 +59,7 @@ $resultado_pagos = $stmt->get_result();
             <a href="solicitudes.php">SOLICITUDES</a>
             <a href="../formularios/solicitud.php">NUEVA SOLICITUD</a>
             <a href="pago_simplificado.php" class="active">COMPROBANTES</a>
-            <a href="../php/logout.php" class="logout-mobile">CERRAR SESIÓN</a>
+            <a href="/proyecto/index.php" class="logout-mobile">CERRAR SESIÓN</a>
         </nav>
     </aside>
 
@@ -175,10 +170,8 @@ $resultado_pagos = $stmt->get_result();
             cancelButtonColor: '#d33'
         }).then((result) => {
             if (result.isConfirmed && result.value) {
-                // Alerta de carga
                 Swal.fire({
                     title: 'Subiendo archivo...',
-                    html: 'Por favor espere mientras procesamos su ticket',
                     allowOutsideClick: false,
                     didOpen: () => { Swal.showLoading(); }
                 });
@@ -186,44 +179,39 @@ $resultado_pagos = $stmt->get_result();
                 const formData = new FormData();
                 formData.append('id_pago', id);
                 formData.append('archivo', result.value);
+                formData.append('columna', 'comprobante_compra');
+                
+                // IMPORTANTE: Indicamos que solo es subida de archivo para no tocar el nombre del contador
+                formData.append('solo_archivo', 'true'); 
 
-                fetch('../php/procesar_compra.php', { 
+                fetch('../php/procesar_dual.php', { 
                     method: 'POST', 
                     body: formData 
                 })
-                .then(response => response.text()) // Leemos como texto para manejar respuestas sucias del servidor
+                .then(response => response.text())
                 .then(text => {
-                    const cleanText = text.trim(); // Limpieza de espacios en blanco
+                    const cleanText = text.trim();
                     try {
                         const data = JSON.parse(cleanText);
                         if(data.status === 'success') {
                             Swal.fire({
                                 icon: 'success',
                                 title: '¡Éxito!',
-                                text: data.msg,
+                                text: 'Ticket cargado correctamente',
                                 timer: 1500,
                                 showConfirmButton: false
                             }).then(() => { location.reload(); });
                         } else {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error en Proceso',
-                                text: data.msg
-                            });
+                            Swal.fire('Error en Proceso', data.msg, 'error');
                         }
                     } catch (e) {
-                        // Si el JSON falla pero el archivo se insertó (comportamiento reportado), recargamos
-                        console.warn("Respuesta no JSON detectada:", text);
+                        console.warn("Respuesta no JSON pura:", text);
                         location.reload(); 
                     }
                 })
                 .catch(error => {
                     console.error('Error de red:', error);
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error de Red',
-                        text: 'No se pudo establecer contacto con el servidor.'
-                    });
+                    Swal.fire('Error de Red', 'No se pudo establecer contacto con el servidor.', 'error');
                 });
             }
         });

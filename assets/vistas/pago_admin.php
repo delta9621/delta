@@ -8,7 +8,6 @@
 <?php 
 session_start();
 
-
 // SEGURIDAD: Solo usuarios con rol 'administrador'
 if(!isset($_SESSION['rol']) || strcasecmp(trim($_SESSION['rol']), 'administrador') !== 0){
     header("Location: /proyecto/index.php");
@@ -20,7 +19,7 @@ $usuario_sesion = $_SESSION['nombre'] ?? 'Admin';
 $rol_usuario = $_SESSION['rol'] ?? 'administrador';
 $filtro_estatus = $_GET['estatus'] ?? 'Incompleto';
 
-// CONTEO: Filtrado por el nombre del administrador actual
+// CONTEO: Filtrado por el nombre del administrador actual para sus propias solicitudes
 $sql_counts = "SELECT 
                 COUNT(CASE WHEN estatus = 'Incompleto' THEN 1 END) as inc,
                 COUNT(CASE WHEN estatus = 'Completado' THEN 1 END) as comp
@@ -60,7 +59,7 @@ $resultado_pagos = $stmt->get_result();
             <a href="../vistas/admin.php" class="active">GESTOR DE USUARIOS</a>
             <a href="../vistas/adminsoli.php">SOLICITUDES</a>
             <a href="../formularios/solicitudadmin.php">NUEVA SOLICITUD</a>
-            <a href="../vistas/pago_admin.php">COMPROBANTES</a>
+            <a href="../vistas/pago_admin.php" >COMPROBANTES</a>
         </nav>
     </aside>
 
@@ -161,7 +160,7 @@ $resultado_pagos = $stmt->get_result();
     function subirDoc(id) {
         Swal.fire({
             title: 'Subir Comprobante Personal',
-            text: 'Seleccione imagen o PDF',
+            text: 'Seleccione imagen o PDF del ticket de compra',
             input: 'file',
             inputAttributes: { 'accept': 'image/*,application/pdf' },
             showCancelButton: true,
@@ -171,10 +170,8 @@ $resultado_pagos = $stmt->get_result();
             inputValidator: (value) => { if (!value) return '¡Selecciona un archivo!' }
         }).then((result) => {
             if (result.isConfirmed) {
-                // Alerta de carga (Loading)
                 Swal.fire({ 
                     title: 'Subiendo...', 
-                    html: 'Procesando archivo personal',
                     allowOutsideClick: false,
                     didOpen: () => { Swal.showLoading(); } 
                 });
@@ -183,9 +180,13 @@ $resultado_pagos = $stmt->get_result();
                 formData.append('id_pago', id);
                 formData.append('archivo', result.value);
                 formData.append('columna', 'comprobante_compra');
+                
+                // ESTA ES LA MODIFICACIÓN CLAVE:
+                // Enviamos esta bandera para que el PHP sepa que NO debe tocar el nombre del contador.
+                formData.append('solo_archivo', 'true'); 
 
                 fetch('../php/procesar_dual.php', { method: 'POST', body: formData })
-                .then(response => response.text()) // Leemos como texto para limpiar posibles errores de PHP
+                .then(response => response.text())
                 .then(text => {
                     const cleanText = text.trim();
                     try {
@@ -194,7 +195,7 @@ $resultado_pagos = $stmt->get_result();
                             Swal.fire({ 
                                 icon: 'success', 
                                 title: '¡Listo!', 
-                                text: 'Comprobante actualizado correctamente',
+                                text: 'Ticket cargado correctamente',
                                 showConfirmButton: false, 
                                 timer: 1500 
                             }).then(() => location.reload());
@@ -202,18 +203,13 @@ $resultado_pagos = $stmt->get_result();
                             Swal.fire('Error', data.msg, 'error');
                         }
                     } catch (e) {
-                        // Si el servidor insertó pero mandó respuesta sucia, recargamos para ver cambios
-                        console.warn("Respuesta del servidor no es JSON puro:", text);
+                        console.warn("Respuesta no JSON:", text);
                         location.reload(); 
                     }
                 })
                 .catch(error => {
                     console.error('Error de conexión:', error);
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error de Red',
-                        text: 'No se pudo contactar con procesar_dual.php'
-                    });
+                    Swal.fire('Error de Red', 'No se pudo contactar con el servidor', 'error');
                 });
             }
         });

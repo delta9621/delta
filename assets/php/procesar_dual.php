@@ -6,75 +6,58 @@
  */-->
 
 <?php
-//  Evitar que cualquier error de PHP ensucie la respuesta JSON
-error_reporting(0);
-ini_set('display_errors', 0);
-ob_start();
-
+ob_start(); 
 session_start();
 include("conexion.php");
-
 header('Content-Type: application/json');
-$response = ['status' => 'error', 'msg' => 'Error desconocido'];
 
-//  Verificar sesión del contador
-if (!isset($_SESSION['nombre'])) {
-    ob_end_clean();
-    echo json_encode(['status' => 'error', 'msg' => 'Sesión no válida']);
-    exit;
-}
+$response = ["status" => "error", "msg" => "Error desconocido"];
 
-$nombre_contador_activo = $_SESSION['nombre'];
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $id_pago = $_POST['id_pago'] ?? null;
+    $columna = $_POST['columna'] ?? null;
+    $solo_archivo = $_POST['solo_archivo'] ?? 'false'; // Capturamos la nueva bandera
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id_pago'])) {
-    
-    $id_pago = intval($_POST['id_pago']);
-    $columna = $_POST['columna']; // comprobante_envio o comprobante_compra
-    
-    // Validar que la columna sea una de las permitidas
-    $columnas_validas = ['comprobante_envio', 'comprobante_compra'];
-    
-    if (in_array($columna, $columnas_validas) && isset($_FILES['archivo']) && $_FILES['archivo']['error'] === UPLOAD_ERR_OK) {
-        
-        $directorio = "../uploads/";
-        if (!file_exists($directorio)) {
-            mkdir($directorio, 0777, true);
-        }
+    if (isset($_FILES['archivo']) && $id_pago && $columna) {
+        $ext = pathinfo($_FILES['archivo']['name'], PATHINFO_EXTENSION);
+        $nuevo_nombre = "pago_" . $id_pago . "_" . time() . "." . $ext;
+        $ruta = "../uploads/" . $nuevo_nombre;
 
-        $extension = pathinfo($_FILES['archivo']['name'], PATHINFO_EXTENSION);
-        $nombre_final = "PAGO_" . $id_pago . "_" . uniqid() . "." . $extension;
-        $ruta_destino = $directorio . $nombre_final;
-
-        if (move_uploaded_file($_FILES['archivo']['tmp_name'], $ruta_destino)) {
+        if (move_uploaded_file($_FILES['archivo']['tmp_name'], $ruta)) {
             
-            //  ACTUALIZACIÓN CLAVE: Insertamos el nombre del contador aquí
-            // Esto llenará el campo que actualmente ves vacío en tu BD
-            $sql = "UPDATE pagos SET $columna = ?, nombre_contador = ? WHERE id = ?";
-            $stmt = $conexion->prepare($sql);
-            $stmt->bind_param("ssi", $nombre_final, $nombre_contador_activo, $id_pago);
+            // LÓGICA DE ACTUALIZACIÓN
+            if ($solo_archivo === 'true') {
+                // CASO ADMIN: Solo actualizamos el archivo, mantenemos el contador intacto
+                $sql = "UPDATE pagos SET $columna = ? WHERE id = ?";
+                $stmt = $conexion->prepare($sql);
+                $stmt->bind_param("si", $nuevo_nombre, $id_pago);
+            } else {
+                // CASO CONTADOR: Actualizamos archivo Y grabamos quién aprobó
+                $nombre_contador = $_POST['nombre_contador'] ?? $_SESSION['nombre'] ?? 'Sistema';
+                $sql = "UPDATE pagos SET $columna = ?, nombre_contador = ? WHERE id = ?";
+                $stmt = $conexion->prepare($sql);
+                $stmt->bind_param("ssi", $nuevo_nombre, $nombre_contador, $id_pago);
+            }
             
             if ($stmt->execute()) {
+                // Verificamos si con esta subida ya están ambos comprobantes
+                $res = $conexion->query("SELECT comprobante_envio, comprobante_compra FROM pagos WHERE id = $id_pago");
+                $fila = $res->fetch_assoc();
                 
-                //  Verificar si ambos comprobantes ya existen para completar el estatus
-                $check = $conexion->query("SELECT comprobante_envio, comprobante_compra FROM pagos WHERE id = $id_pago")->fetch_assoc();
-                
-                if (!empty($check['comprobante_envio']) && !empty($check['comprobante_compra'])) {
+                if (!empty($fila['comprobante_envio']) && !empty($fila['comprobante_compra'])) {
                     $conexion->query("UPDATE pagos SET estatus = 'Completado' WHERE id = $id_pago");
                 }
-
-                $response = ['status' => 'success', 'msg' => 'Comprobante registrado con éxito'];
+                
+                $response = ["status" => "success"];
             } else {
-                $response['msg'] = "Error al actualizar la base de datos";
+                $response["msg"] = "Error en base de datos";
             }
         } else {
-            $response['msg'] = "No se pudo guardar el archivo en el servidor";
+            $response["msg"] = "Error al mover archivo";
         }
-    } else {
-        $response['msg'] = "Archivo no válido o columna incorrecta";
     }
 }
 
-// Limpiar buffer y enviar JSON
-ob_end_clean();
+ob_end_clean(); 
 echo json_encode($response);
 exit;
